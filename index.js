@@ -1,18 +1,19 @@
 const express = require('express');
-const technosProcess = require('process/technosProcess');
+var cors = require('cors');
+const technosProcess = require('./process/technosProcess');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get('/', function (req, res) {
 	technosProcess.getAllTechnos().then(technos => {
-		res.send(tecnos);
+		res.send(technos);
 	})
 });
 
 app.post('/techno', function(req, res) {
 	const name = req.body.name;
-	console.log(neode);
 	neode.model('Techno').create({
 		"name": name
 	}).then(v => {
@@ -20,6 +21,6 @@ app.post('/techno', function(req, res) {
 	})
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
+app.listen(8080, function () {
+  console.log('Example app listening on port 8080!')
 });
