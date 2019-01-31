@@ -1,14 +1,13 @@
 const express = require('express');
-const neode = require("neode").fromEnv().with({
-	Techno: require("./models/techno"),
-});
+const technosProcess = require('process/technosProcess');
 
 const app = express();
 app.use(express.json());
 
 app.get('/', function (req, res) {
-	neode.cypher('match (n) return n').then(res => {console.log(res)});
-  	res.send('Hello World!')
+	technosProcess.getAllTechnos().then(technos => {
+		res.send(tecnos);
+	})
 });
 
 app.post('/techno', function(req, res) {
