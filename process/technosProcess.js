@@ -1,10 +1,6 @@
-const Techno = require("../models/techno");
+const TechnosRepository = require('../repository/technosRepository');
 
-const neo4j = require('neo4j-driver').v1;
-const driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "technos"));
-
-
-class TechnoProcess {
+class TechnosProcess {
 
 	countTechnos() {
 
@@ -20,45 +16,62 @@ class TechnoProcess {
 
 	}
 
-	getRandomTechno() {
+	getTechno(name) {
 		
-		return this.countTechnos().then(count => {
+		return new TechnosRepository().getTechnoWithDirectChildren(name).then(result => {
 
-			const randomOffset = Math.floor(Math.random() * count);
+			console.log('MAIN RESULTS ', result);
 
-			const session = driver.session();
+			//console.log('reduced ', result.map(techno => techno.children).reduce((acc, val) => acc.concat(val), []).filter(techno => techno !== undefined));
 
-			return session.run('MATCH (a:Techno) OPTIONAL MATCH (a)-[r:link]->(b) RETURN a, b').then(result => {
-				session.close();
+			const childrenToFetch = result.map(techno => techno.children)
+				.reduce((acc, val) => acc.concat(val), [])
+				.filter(techno => techno !== undefined)
+				.map(techno => techno.name);
+			const uniqChildrenToFetch = [...new Set(childrenToFetch)];
+			const uniqChildrenFetch = uniqChildrenToFetch.map(techno => new TechnosRepository().getTechnoWithDirectChildren(techno));
 
-				const retour = {
-					nodes:[],
-					links:[]
+			return Promise.all(uniqChildrenFetch).then(children => {
+				children.forEach(c => {
+					result = result.concat(c);
+				})
+				return result;
+			}).then(technos => {
+				
+				const nodes=[];
+				const links=[];
+				const linksMap={};
+
+				technos.forEach(t => {
+					nodes.push(t.name);
+
+					if (!linksMap[t.name]) {
+						linksMap[t.name] = [];
+					}
+					if (t.children) {
+						t.children.forEach(c => {
+							nodes.push(c.name);
+							linksMap[t.name].push(c.name);
+						})
+					}
+				})
+				
+				for (let i in linksMap) {
+					links.push({"from": i, "to": [...new Set(linksMap[i])]})
 				}
 
-				result.records.forEach(record => {
-
-					console.log(record.get('a').properties.name);
-
-					
-					if (record.get('a') && retour.nodes.indexOf(record.get('a').properties.name) < 0) {
-						retour.nodes.push(record.get('a').properties.name);
-					}
-					if (record.get('b')) {
-						retour.links.push({from : record.get('a').properties.name, to : record.get('b').properties.name});
-					}
-					
-				})
-				return retour;
+				//return retour;
+				return {
+					nodes: [...new Set(nodes)],
+					links: links
+				}
 			})
-			.catch(error => {
-		      	session.close();
-		      	throw error;
-		    });
-
 		})
+		.catch(error => {
+	      	throw error;
+	    });
 		
 	}
 }
 
-module.exports = TechnoProcess;
+module.exports = TechnosProcess;

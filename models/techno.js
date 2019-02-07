@@ -4,15 +4,19 @@ class Techno {
         this.name = name;
     }
 
+    setName(name) {
+        this.name = name;
+    }
+
     setChildren(children) {
         this.children = [];
     }
 
     addChild(child) {
-        if (!this.child) {
-            this.child = [];
+        if (!this.children) {
+            this.children = [];
         }
-        this.child.push(child);
+        this.children.push(child);
     }
 }
 

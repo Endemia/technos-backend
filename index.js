@@ -7,8 +7,13 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', function (req, res) {
-	new TechnosProcess().getRandomTechno().then(technos => {
+	const name = req.query.name
+	new TechnosProcess().getTechno(name).then(technos => {
 		res.send(technos);
+	})
+	.catch(error => {
+		console.log(error);
+		res.status(500).send('Something went wrong');
 	})
 });
 
@@ -18,6 +23,9 @@ app.post('/techno', function(req, res) {
 		"name": name
 	}).then(v => {
 		res.send('Hello World!');
+	})
+	.catch(error => {
+		res.status(500).send('Something went wrong');
 	})
 });
 
