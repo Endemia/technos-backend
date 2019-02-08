@@ -16,6 +16,13 @@ class TechnosProcess {
 
 	}
 
+	getTechno(name, depth) {
+		return new TechnosRepository().getTechnoWithChildren(name, depth).then(result => {
+			return result;
+		})
+	}
+
+	/*
 	getTechno(name) {
 		
 		return new TechnosRepository().getTechnoWithDirectChildren(name).then(result => {
@@ -72,6 +79,7 @@ class TechnosProcess {
 	    });
 		
 	}
+	*/
 }
 
 module.exports = TechnosProcess;

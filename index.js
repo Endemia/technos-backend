@@ -8,7 +8,8 @@ app.use(cors());
 
 app.get('/', function (req, res) {
 	const name = req.query.name
-	new TechnosProcess().getTechno(name).then(technos => {
+	const depth = req.query.depth
+	new TechnosProcess().getTechno(name, depth).then(technos => {
 		res.send(technos);
 	})
 	.catch(error => {
