@@ -8,15 +8,22 @@ class Techno {
         this.name = name;
     }
 
-    setChildren(children) {
-        this.children = [];
-    }
-
     addChild(child) {
         if (!this.children) {
             this.children = [];
         }
         this.children.push(child);
+    }
+    addChildIfNotPresent(child) {
+        if (!this.children) {
+            this.children = [];
+        }
+        if (!this.hasChild(child)) {
+            this.children.push(child);
+        }
+    }
+    hasChild(child) {
+        return this.children.filter(c => c.name == child.name).length;
     }
 }
 
