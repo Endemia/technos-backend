@@ -1,7 +1,8 @@
 class Techno {
 
-    constructor(name) {
+    constructor(name, children) {
         this.name = name;
+        this.children = children || [];
     }
 
     setName(name) {
@@ -9,15 +10,9 @@ class Techno {
     }
 
     addChild(child) {
-        if (!this.children) {
-            this.children = [];
-        }
         this.children.push(child);
     }
     addChildIfNotPresent(child) {
-        if (!this.children) {
-            this.children = [];
-        }
         if (!this.hasChild(child)) {
             this.children.push(child);
         }

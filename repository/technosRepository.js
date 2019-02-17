@@ -1,62 +1,55 @@
 const neo4j = require('neo4j-driver').v1;
 const driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "technos"));
 
-const Techno = require("../models/techno");
+const Techno = require("../models/Techno");
 
 class TechnosRepository {
 
-	getTechnoWithDirectChildren(name) {
-		
-		console.log("getTechnoWithDirectChildren ", name);
-
+	countTechnos() {
 		const session = driver.session();
 
-		let query = 'MATCH (a:Techno)';
-		if (name) {
-			query+= ' WHERE a.name =~ "(?i)' + name + '.*"';
-		}
-		query += ' OPTIONAL MATCH (a)-[r:link]->(b) RETURN *';
+		const query = 'MATCH (n:Techno) return count(*) as count';
 
 		return session.run(query).then(result => {
 			session.close();
-
-			const technosMap = {};
-
-			result.records.forEach(record => {
-
-				const technoName = record.get('a').properties.name
-				
-				if (!technosMap[technoName]) {
-					technosMap[technoName] = new Techno(technoName);
-				}
-				const techno = technosMap[technoName]; 
-
-				if (record.get('b')) {
-					techno.addChild(new Techno(record.get('b').properties.name));
-				}
-				
-			})
-
-			return Object.keys(technosMap).map(k => technosMap[k]);
-			
+			return result.records[0].get('count').toString();
 		})
 		.catch(error => {
 	      	session.close();
 	      	throw error;
-	    });
+	    });;
 	}
 
-	getTechnoWithChildren(name, depth) {
+	createTechno(name) {
+		const session = driver.session();
+
+		const query = 'CREATE (n:Techno {name:"' + name + '"}) RETURN n;'
+
+		return session.run(query).then(result => {
+			session.close();
+			return result;
+		})
+		.catch(error => {
+	      	session.close();
+	      	throw error;
+	    });;
+	}
+
+	getTechnoWithChildrenByName(name, depth, exactMatch) {
 
 		if (!depth) depth=3;
 
 		const session = driver.session();
 
-		let query = 'match (root:Techno)';
+		let query = 'MATCH (root:Techno)';
 		if (name) {
-			query += ' where root.name =~ "(?i).*' + name + '.*"';
+			if (exactMatch) {
+				query += ' WHERE root.name = "' + name + '"';
+			} else {
+				query += ' WHERE root.name =~ "(?i).*' + name + '.*"';
+			}
 		}
-		query += ' optional match (root)-[r:link*..' + depth + ']->(a) unwind coalesce(r, [null]) as rels with root, collect(distinct [startNode(rels), endNode(rels)]) as relations return root, relations;';
+		query += ' OPTIONAL MATCH (root)-[r:link*..' + depth + ']->(a) UNWIND COALESCE(r, [null]) AS rels WITH root, COLLECT(DISTINCT [startNode(rels), endNode(rels)]) AS relations RETURN root, relations;';
 		
 		const technosMap = {};
 		return session.run(query).then(result => {
