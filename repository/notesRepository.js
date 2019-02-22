@@ -4,6 +4,8 @@ const client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDa
 const User = require("../models/User");
 const UserNotes = require("../models/UserNotes");
 const TechnoNotes = require("../models/TechnoNotes");
+const UserTechnoNote = require("../models/UserTechnoNote");
+const TechnoUserNote = require("../models/TechnoUserNote");
 
 class NotesRepository {
 
@@ -18,7 +20,7 @@ class NotesRepository {
 				params: [techno, userId, note]
 			}
 		]
-		return client.batch(queries, {prepare: true});
+		return client.batch(queries, {prepare: true}).then(res => "OK");
 	}
 
 	deleteNote(userId, techno) {
@@ -32,7 +34,7 @@ class NotesRepository {
 				params: [techno, userId]
 			}
 		]
-		return client.batch(queries, {prepare: true});
+		return client.batch(queries, {prepare: true}).then(res => "OK");
 	}
 
 	getNotes(userId) {
@@ -42,7 +44,7 @@ class NotesRepository {
 			const notes = new UserNotes(userId);
 			if (result.rows) {
 				notes.setNotes(result.rows.map(n => {
-					return {techno : n.techno, note: n.note};
+					return new UserTechnoNote(n.techno, n.note);
 				}));
 			}
 			return notes;
@@ -58,7 +60,7 @@ class NotesRepository {
 					if (!technosMap[row.techno]) {
 						technosMap[row.techno] = new TechnoNotes(row.techno);
 					}
-					technosMap[row.techno].addNote({user: new User(row.id), note: row.note});
+					technosMap[row.techno].addNote(new TechnoUserNote(new User(row.id), row.note));
 				})
 				return Object.keys(technosMap).map(k => technosMap[k]).sort((a,b) => {
 					if (a.techno < b.techno)

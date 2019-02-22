@@ -27,7 +27,7 @@ class TechnosRepository {
 
 		return session.run(query).then(result => {
 			session.close();
-			return result;
+			return new Techno(name);
 		})
 		.catch(error => {
 	      	session.close();
