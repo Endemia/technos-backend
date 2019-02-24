@@ -8,6 +8,7 @@ const typeDefs = gql`
   		allNotes: [TechnoNotes]
   	}
   	type Mutation {
+      login (login: String!, password: String!): String
 	    addTechno(name: String): Techno
 	    updateNote(userId: String, techno: String, note: Int): String
   	}

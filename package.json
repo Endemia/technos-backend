@@ -11,10 +11,13 @@
   "dependencies": {
     "@koa/cors": "^2.2.3",
     "apollo-server-koa": "^2.4.6",
+    "bcrypt": "^3.0.4",
     "cassandra-driver": "^4.0.0",
     "graphql": "^14.1.1",
+    "jsonwebtoken": "^8.5.0",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
+    "koa-jwt": "^3.5.1",
     "koa-router": "^7.4.0",
     "neo4j": "^2.0.0-RC2",
     "neo4j-driver": "^1.7.2"
