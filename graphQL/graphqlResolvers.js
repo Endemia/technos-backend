@@ -51,6 +51,12 @@ const resolvers = {
                 })
             })
         },
+        isLoginAvailable: (obj, args) => {
+            return new UsersProcess().isLoginAvailable(args.login);
+        },
+        register: (obj, args) => {
+            return new UsersProcess().register(args.login, args.password, args.nom, args.prenom, args.email);
+        },
   		addTechno: (obj, args, { user }) => {
             if (!user || !user.user) {
                 throw new Error('You are not authenticated!')

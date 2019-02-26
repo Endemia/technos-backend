@@ -1,5 +1,7 @@
 const cassandra = require('cassandra-driver');
 const client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'technos' });
+const bcrypt = require('bcrypt');
+const uuidV4 = require('uuid/v4');
 
 const User = require("../models/User");
 const UserCredentials = require("../models/UserCredentials");
@@ -42,6 +44,28 @@ class UsersRepository {
 				return null;
 			}
 		})
+	}
+
+	register(login, password, nom, prenom, email) {
+
+		const newUserId = uuidV4();
+		console.log('newUserId ', newUserId);
+
+		return bcrypt.hash(password, 10).then(cryptedPassword => {
+			const queries = [
+				{
+					query: 'insert into users_credentials(login, password, id) values (?, ?, ?)',
+					params: [login, cryptedPassword, newUserId]
+				},
+				{
+					query: 'insert into users(id, prenom, nom, email) values (?, ?, ?, ?)',
+					params: [newUserId, prenom, nom, email]
+				}
+			]
+			return client.batch(queries, {prepare: true}).then(res => newUserId);
+		})
+
+		
 	}
 }
 
