@@ -34,7 +34,8 @@ const resolvers = {
   	Mutation: {
         login: (obj, args) => {
             return new UsersProcess().getCredentialsByLogin(args.login).then(user => {
-                if (!user) {
+                console.log(user);
+                if (!user || !user.active) {
                     throw new Error('Invalid credentials')
                 }
 

@@ -1,9 +1,11 @@
 const UsersRepository = require('../repository/usersRepository');
+const EmailProcess = require('./emailProcess');
 
 class UsersProcess {
 
 	constructor() {
 		this.usersRepository = new UsersRepository();
+		this.emailProcess = new EmailProcess();
 	}
 
 	getCredentialsByLogin(login) {
@@ -39,7 +41,11 @@ class UsersProcess {
 
         return this.isLoginAvailable(login).then(isLoginAvailable => {
             if (isLoginAvailable) {
-				return this.usersRepository.register(login, password, nom, prenom, email);
+				return this.usersRepository.register(login, password, nom, prenom, email).then(res => {
+					return this.emailProcess.sendRegisterKeyEmail(email, res.registerKey).then(res => {
+						return "OK";
+					});
+				})
 			} else {
                 throw new Error("loginNotAvailable");
             }

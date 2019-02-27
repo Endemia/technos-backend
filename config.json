@@ -1,0 +1,15 @@
+{
+	"loginMinLength": 2,
+	"passwordMinLength": 2,
+	"smtp": {
+		"host": "localhost",
+		"port": 25,
+		"secure": false,
+		"auth": {
+		    "user": "username",
+		    "pass": "password"
+		}
+	},
+	"fromEmail": "no-reply-technos@cgi.fr",
+	"registerEmailSubject": "Activez votre compte."
+}
