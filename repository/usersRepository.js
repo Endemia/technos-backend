@@ -1,17 +1,27 @@
 const cassandra = require('cassandra-driver');
-const client = new cassandra.Client({ contactPoints: ['10.80.160.79:9042'], localDataCenter: 'datacenter1', keyspace: 'technos' });
 const bcrypt = require('bcrypt');
 const uuidV4 = require('uuid/v4');
 
+const config = require('../config.json');
 const User = require("../models/User");
 const UserCredentials = require("../models/UserCredentials");
 
 class UsersRepository {
 
+	constructor() {
+		this.client = new cassandra.Client(
+			{
+				contactPoints: [config.cassandra.host + ': ' + config.cassandra.port],
+				localDataCenter: config.cassandra.datacenter, 
+				keyspace: config.cassandra.keyspace 
+			}
+		);
+	}
+
 	getUserById(userId) {
 		const query = 'select * from users where id = ?';
 		const params = [userId];
-		return client.execute(query, params, {prepare: true}).then(result => {
+		return this.client.execute(query, params, {prepare: true}).then(result => {
 			if (result.rows && result.rows.length > 0) {
 				return new User(userId, result.rows[0].nom, result.rows[0].prenom);
 			} else {
@@ -23,7 +33,7 @@ class UsersRepository {
 	getUserByIds(userIds) {
 		const query = 'select * from users where id in ?';
 		const params = [userIds];
-		return client.execute(query, params, {prepare: true}).then(result => {
+		return this.client.execute(query, params, {prepare: true}).then(result => {
 			if (result.rows) {
 				return result.rows.map(row => {
 					return new User(row.id, row.nom, row.prenom);
@@ -37,7 +47,7 @@ class UsersRepository {
 	getCredentialsByLogin(login) {
 		const query = 'select * from users_credentials where login = ?';
 		const params = [login];
-		return client.execute(query, params, {prepare: true}).then(result => {
+		return this.client.execute(query, params, {prepare: true}).then(result => {
 			if (result.rows && result.rows.length > 0) {
 				return new UserCredentials(result.rows[0].login, result.rows[0].password, result.rows[0].id, result.rows[0].active, result.rows[0].register_key);
 			} else {
@@ -63,7 +73,7 @@ class UsersRepository {
 				params: [newUserId, prenom, nom, email]
 			}
 		]
-		return client.batch(queries, {prepare: true}).then(res => {
+		return this.client.batch(queries, {prepare: true}).then(res => {
 			return {userId: newUserId, registerKey}
 		});
 	}
@@ -71,7 +81,7 @@ class UsersRepository {
 	activate(login) {
 		const query = 'update users_credentials set active=true where login = ?';
 		const params = [login];
-		return client.execute(query, params, {prepare: true});
+		return this.client.execute(query, params, {prepare: true});
 	}
 }
 

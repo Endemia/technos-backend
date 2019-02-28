@@ -1,6 +1,6 @@
 const cassandra = require('cassandra-driver');
-const client = new cassandra.Client({ contactPoints: ['10.80.160.79:9042'], localDataCenter: 'datacenter1', keyspace: 'technos' });
 
+const config = require('../config.json');
 const User = require("../models/User");
 const UserNotes = require("../models/UserNotes");
 const TechnoNotes = require("../models/TechnoNotes");
@@ -8,6 +8,16 @@ const UserTechnoNote = require("../models/UserTechnoNote");
 const TechnoUserNote = require("../models/TechnoUserNote");
 
 class NotesRepository {
+
+	constructor() {
+		this.client = new cassandra.Client(
+			{
+				contactPoints: [config.cassandra.host + ': ' + config.cassandra.port],
+				localDataCenter: config.cassandra.datacenter, 
+				keyspace: config.cassandra.keyspace 
+			}
+		);
+	}
 
 	updateNote(userId, techno, note) {
 		const queries = [
@@ -20,7 +30,7 @@ class NotesRepository {
 				params: [techno, userId, note]
 			}
 		]
-		return client.batch(queries, {prepare: true}).then(res => "OK");
+		return this.client.batch(queries, {prepare: true}).then(res => "OK");
 	}
 
 	deleteNote(userId, techno) {
@@ -34,13 +44,13 @@ class NotesRepository {
 				params: [techno, userId]
 			}
 		]
-		return client.batch(queries, {prepare: true}).then(res => "OK");
+		return this.client.batch(queries, {prepare: true}).then(res => "OK");
 	}
 
 	getNotes(userId) {
 		const query = 'select * from users_notes where id = ?';
 		const params = [userId];
-		return client.execute(query, params, {prepare: true}).then(result => {
+		return this.client.execute(query, params, {prepare: true}).then(result => {
 			const notes = new UserNotes(userId);
 			if (result.rows) {
 				notes.setNotes(result.rows.map(n => {
@@ -53,7 +63,7 @@ class NotesRepository {
 
 	getAllNotes() {
 		const query = 'select * from technos_notes';
-		return client.execute(query, [], {prepare: true}).then(result => {
+		return this.client.execute(query, [], {prepare: true}).then(result => {
 			if (result.rows) {
 				const technosMap = {};
 				result.rows.forEach(row => {

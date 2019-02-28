@@ -1,4 +1,10 @@
 {
+	"cassandra": {
+		"host": "localhost",
+		"port": "9042",
+		"datacenter": "datacenter1",
+		"keyspace": "technos"
+	},
 	"urlApplication": "http://localhost:3000",
 	"loginMinLength": 2,
 	"passwordMinLength": 2,
