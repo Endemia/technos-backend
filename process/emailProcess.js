@@ -7,12 +7,12 @@ class EmailProcess {
 		this.transporter = nodemailer.createTransport(config.smtp);
 	}
 
-	sendRegisterKeyEmail(toAdress, registerKey) {
+	sendRegisterKeyEmail(login, toAdress, registerKey) {
 		const mailOptions = {
   			from: config.fromEmail,
   			to: toAdress,
 	  		subject: config.registerEmailSubject,
-  			text: `Cliquez sur ce lien pour activer votre compte ${registerKey}.`
+  			text: `Cliquez sur ce lien pour activer votre compte : ${config.urlApplication}/activate/login/${login}/key/${registerKey}.`
 		};
 
 		return this.transporter.sendMail(mailOptions);

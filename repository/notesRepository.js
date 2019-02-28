@@ -1,5 +1,5 @@
 const cassandra = require('cassandra-driver');
-const client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'technos' });
+const client = new cassandra.Client({ contactPoints: ['10.80.160.79:9042'], localDataCenter: 'datacenter1', keyspace: 'technos' });
 
 const User = require("../models/User");
 const UserNotes = require("../models/UserNotes");

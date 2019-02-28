@@ -42,7 +42,7 @@ class UsersProcess {
         return this.isLoginAvailable(login).then(isLoginAvailable => {
             if (isLoginAvailable) {
 				return this.usersRepository.register(login, password, nom, prenom, email).then(res => {
-					return this.emailProcess.sendRegisterKeyEmail(email, res.registerKey).then(res => {
+					return this.emailProcess.sendRegisterKeyEmail(login, email, res.registerKey).then(res => {
 						return "OK";
 					});
 				})
@@ -52,6 +52,17 @@ class UsersProcess {
         });
 	}
 
+    activate(login, registerKey) {
+        return this.usersRepository.getCredentialsByLogin(login).then(res => {
+            if (res.register_key !== registerKey) {
+                return false;
+            } else {
+                return this.usersRepository.activate(login).then(res => {
+                    return true;
+                })
+            }
+        });
+    }
 }
 
 module.exports = UsersProcess;

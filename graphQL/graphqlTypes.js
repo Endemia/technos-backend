@@ -2,17 +2,18 @@ const { gql } = require('apollo-server-koa');
 
 const typeDefs = gql`
   	type Query {
+        isLoginAvailable (login: String): Boolean
   		findTechnos(name: String, depth: Int, exactMatch: Boolean): [Techno]
   		countTechnos: Int
-  		findNotes(userId: String): UserNotes
+  		findNotes: UserNotes
   		allNotes: [TechnoNotes]
   	}
   	type Mutation {
-      login (login: String!, password: String!): String
-      register (login: String, password: String, nom: String, prenom: String, email: String): String
-      isLoginAvailable (login: String): Boolean
+        login (login: String!, password: String!): String
+        activate (login: String, registerKey: String): String
+        register (login: String, password: String, nom: String, prenom: String, email: String): String
 	    addTechno(name: String): Techno
-	    updateNote(userId: String, techno: String, note: Int): String
+	    updateNote(techno: String, note: Int): String
   	}
   	type Techno { 
 	  	name: String, 

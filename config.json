@@ -1,4 +1,5 @@
 {
+	"urlApplication": "http://localhost:3000",
 	"loginMinLength": 2,
 	"passwordMinLength": 2,
 	"smtp": {
