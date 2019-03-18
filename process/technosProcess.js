@@ -14,9 +14,10 @@ class TechnosProcess {
 		return this.technosRepository.getTechnoWithChildrenByName(name, depth, exactMatch);
 	}
 
-	createTechno(name) {
-		return this.technosRepository.createTechno(name);
+	createTechno(name, links, linkType, userId) {
+		return this.technosRepository.createTechno(name, links, linkType, userId);
 	}
+
 }
 
 module.exports = TechnosProcess;

@@ -12,11 +12,12 @@ const typeDefs = gql`
         login (login: String!, password: String!): String
         activate (login: String, registerKey: String): String
         register (login: String, password: String, nom: String, prenom: String, email: String): String
-	    addTechno(name: String): Techno
+	    addTechno(name: String, links: [String], linkType: String): Techno
 	    updateNote(techno: String, note: Int): String
   	}
   	type Techno { 
 	  	name: String, 
+        niveau: Int,
   		children: [Techno]
   	}
   	type UserNotes {

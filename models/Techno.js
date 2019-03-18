@@ -1,12 +1,19 @@
 class Techno {
 
-    constructor(name, children) {
+    constructor(name, children, niveau) {
         this.name = name;
         this.children = children || [];
+        if (niveau !== undefined) {
+            this.niveau = niveau;
+        }
     }
 
     setName(name) {
         this.name = name;
+    }
+
+    setNiveau(niveau) {
+        this.niveau = niveau;
     }
 
     addChild(child) {

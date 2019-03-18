@@ -63,7 +63,7 @@ const resolvers = {
             if (!user || !user.user) {
                 throw new Error('You are not authenticated!')
             }
-  			return new TechnosProcess().createTechno(args.name);
+  			return new TechnosProcess().createTechno(args.name, args.links, args.linkType, user.user.id);
   		},
   		updateNote: (obj, args, { user }) => {
             if (!user || !user.user) {

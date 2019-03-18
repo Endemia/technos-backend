@@ -20,36 +20,60 @@ class TechnosRepository {
 	    });;
 	}
 
-	createTechno(name) {
+	createTechno(name, links, linkType, userId) {
 		const session = driver.session();
-
-		const query = 'CREATE (n:Techno {name:"' + name + '"}) RETURN n;'
-
-		return session.run(query).then(result => {
+		return session.writeTransaction((transaction) => { transaction.run(`CREATE (n:Techno {name:"${name}", createdBy:"${userId}"}) RETURN n;`)})
+		.then(() => {
+			if (linkType === "child") {
+				let chain = null;
+				links.forEach(link => {
+					if (chain === null) {
+						chain = session.writeTransaction((transaction) => { transaction.run(`MATCH (a:Techno {name:"${name}"}) MATCH (b:Techno {name: "${link}"}) CREATE (b)-[r:link {createdBy:"${userId}"}]->(a);`)})
+					} else {
+						chain = chain.then(() => {
+							return session.writeTransaction((transaction) => { transaction.run(`MATCH (a:Techno {name:"${name}"}) MATCH (b:Techno {name: "${link}"}) CREATE (b)-[r:link {createdBy:"${userId}"}]->(a);`)})
+						})
+					}
+				})
+				return chain;
+			} else {
+				let chain = null;
+				links.forEach(link => {
+					if (chain === null) {
+						chain = session.writeTransaction((transaction) => { transaction.run(`MATCH (a:Techno {name:"${name}"}) MATCH (b:Techno {name: "${link}"}) CREATE (a)-[r:link {createdBy:"${userId}"}]->(b);`)})
+					} else {
+						chain = chain.then(() => {
+							return session.writeTransaction((transaction) => { transaction.run(`MATCH (a:Techno {name:"${name}"}) MATCH (b:Techno {name: "${link}"}) CREATE (a)-[r:link {createdBy:"${userId}"}]->(b);`)})
+						})
+					}
+				})
+				return chain;
+			}
+		})
+		.then(() => {
 			session.close();
 			return new Techno(name);
-		})
-		.catch(error => {
+		}).catch(error => {
 	      	session.close();
 	      	throw error;
-	    });;
+	    });
 	}
 
 	getTechnoWithChildrenByName(name, depth, exactMatch) {
 
-		if (!depth) depth=3;
+		if (depth === undefined) depth=2;
 
 		const session = driver.session();
 
 		let query = 'MATCH (root:Techno)';
 		if (name) {
 			if (exactMatch) {
-				query += ' WHERE root.name = "' + name + '"';
+				query += ` WHERE root.name = "${name}"`;
 			} else {
-				query += ' WHERE root.name =~ "(?i).*' + name + '.*"';
+				query += ` WHERE root.name =~ "(?i).*${name}.*"`;
 			}
 		}
-		query += ' OPTIONAL MATCH (root)-[r:link*..' + depth + ']->(a) UNWIND COALESCE(r, [null]) AS rels WITH root, COLLECT(DISTINCT [startNode(rels), endNode(rels)]) AS relations RETURN root, relations;';
+		query += ` OPTIONAL MATCH (root)-[r:link*..${depth}]->(a) UNWIND COALESCE(r, [null]) AS rels WITH root, COLLECT(DISTINCT [startNode(rels), endNode(rels)]) AS relations RETURN root, relations;`;
 		
 		const technosMap = {};
 		return session.run(query).then(result => {
