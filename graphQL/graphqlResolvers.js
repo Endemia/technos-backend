@@ -15,6 +15,12 @@ const resolvers = {
             }
 	  		return new TechnosProcess().getTechnoByName(args.name, args.depth, args.exactMatch);
   		},
+        centerOnTechno: (obj, args, { user }) => {
+            if (!user || !user.user) {
+                throw new Error('You are not authenticated!')
+            }
+            return new TechnosProcess().centerOnTechno(args.name, args.depth);
+        },
   		countTechnos: (obj, args, { user }) => {
             if (!user || !user.user) {
                 throw new Error('You are not authenticated!')
@@ -45,8 +51,9 @@ const resolvers = {
                 if (!valid) {
                     throw new Error('Invalid credentials')
                 } else {
+                    console.log(user);
                     return jsonwebtoken.sign(
-                        { id: user.id, login: user.login },
+                        { id: user.id, login: user.login, isAdmin: user.admin },
                         "SECRET",
                         { expiresIn: '1d' }
                     )
@@ -65,6 +72,15 @@ const resolvers = {
             }
   			return new TechnosProcess().createTechno(args.name, args.links, args.linkType, user.user.id);
   		},
+        addLink: (obj, args, { user }) => {
+            if (!user || !user.user) {
+                throw new Error('You are not authenticated!')
+            }
+            if (!user.user.isAdmin) {
+                throw new Error('You are not authorized!')
+            }
+            return new TechnosProcess().createLink(args.from, args.to, user.user.id);
+        },
   		updateNote: (obj, args, { user }) => {
             if (!user || !user.user) {
                 throw new Error('You are not authenticated!')

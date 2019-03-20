@@ -18,6 +18,14 @@ class TechnosProcess {
 		return this.technosRepository.createTechno(name, links, linkType, userId);
 	}
 
+	createLink(from, to, userId) {
+		return this.technosRepository.createLink(from, to, userId);
+	}
+
+	centerOnTechno(name, depth) {
+		return this.technosRepository.centerOnTechno(name, depth);
+	}
+
 }
 
 module.exports = TechnosProcess;

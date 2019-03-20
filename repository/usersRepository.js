@@ -49,7 +49,7 @@ class UsersRepository {
 		const params = [login];
 		return this.client.execute(query, params, {prepare: true}).then(result => {
 			if (result.rows && result.rows.length > 0) {
-				return new UserCredentials(result.rows[0].login, result.rows[0].password, result.rows[0].id, result.rows[0].active, result.rows[0].register_key);
+				return new UserCredentials(result.rows[0].login, result.rows[0].password, result.rows[0].id, result.rows[0].active, result.rows[0].register_key, result.rows[0].admin);
 			} else {
 				return null;
 			}
