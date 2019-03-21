@@ -42,7 +42,8 @@ const resolvers = {
   	},
   	Mutation: {
         login: (obj, args) => {
-            return new UsersProcess().getCredentialsByLogin(args.login).then(user => {
+            const usersProcess = new UsersProcess();
+            return usersProcess.getCredentialsByLogin(args.login).then(user => {
                 if (!user || !user.active) {
                     throw new Error('Invalid credentials')
                 }
@@ -51,12 +52,13 @@ const resolvers = {
                 if (!valid) {
                     throw new Error('Invalid credentials')
                 } else {
-                    console.log(user);
-                    return jsonwebtoken.sign(
-                        { id: user.id, login: user.login, isAdmin: user.admin },
-                        "SECRET",
-                        { expiresIn: '1d' }
-                    )
+                    return usersProcess.getUserById(user.id).then(userInfos => {
+                        return jsonwebtoken.sign(
+                            { id: user.id, login: user.login, isAdmin: user.admin, nom: userInfos.nom, prenom: userInfos.prenom },
+                            "SECRET",
+                            { expiresIn: '1d' }
+                        )
+                    })
                 }
             })
         },

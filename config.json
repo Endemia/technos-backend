@@ -1,6 +1,6 @@
 {
 	"cassandra": {
-		"host": "localhost",
+		"host": "127.0.0.1",
 		"port": "9042",
 		"datacenter": "datacenter1",
 		"keyspace": "technos"

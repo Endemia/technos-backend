@@ -12,6 +12,10 @@ class UsersProcess {
 		return this.usersRepository.getCredentialsByLogin(login);
 	}
 
+    getUserById(id) {
+        return this.usersRepository.getUserById(id);
+    }
+
 	isLoginAvailable(login) {
 		return this.usersRepository.getCredentialsByLogin(login).then(res => {
 			return res === null;
